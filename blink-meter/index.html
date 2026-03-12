@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlinkMeter | Precision Eye Tracking</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- MediaPipe Tasks Vision -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="pulse"></span>
+                <h1>BlinkMeter<span>.ai</span></h1>
+            </div>
+            <div class="status-badge" id="app-status">Initializing...</div>
+        </header>
+
+        <main>
+            <div class="video-section">
+                <div class="video-wrapper">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="output_canvas"></canvas>
+                    
+                    <div class="calibration-overlay" id="calibration">
+                        <div class="spinner"></div>
+                        <p>Loading Neural Engine...</p>
+                    </div>
+
+                    <div class="timer-display" id="timer">30s</div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-card main-stat">
+                    <label>Blink Count</label>
+                    <div class="value" id="blink-count">0</div>
+                    <div class="progress-bar">
+                        <div class="progress" id="time-progress"></div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button id="start-btn" class="primary-btn">Start 30s Challenge</button>
+                    <button id="reset-btn" class="secondary-btn">Reset</button>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <label>Left Eye</label>
+                        <div class="small-value" id="left-eye-val">0.00</div>
+                    </div>
+                    <div class="info-card">
+                        <label>Right Eye</label>
+                        <div class="small-value" id="right-eye-val">0.00</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by MediaPipe Face Landmarker V2</p>
+        </footer>
+    </div>
+    <script src="script.js" type="module"></script>
+</body>
+</html>
