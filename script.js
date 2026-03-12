@@ -3,6 +3,14 @@ import {
     FilesetResolver,
     DrawingUtils
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+import { initNotifications, triggerFatigueNotification } from "./notifications/fatigue_alert.js";
+
+const bgWorker = new Worker('./facemesh.worker.js');
+bgWorker.onmessage = () => {
+    if (webcamRunning) {
+        processFrame();
+    }
+};
 
 /** 🧠 THE NEURAL ENGINE V3 **/
 const video = document.getElementById("webcam");
@@ -60,7 +68,7 @@ async function startWebcam() {
     video.addEventListener("loadedmetadata", () => {
         video.play();
         webcamRunning = true;
-        processFrame();
+        bgWorker.postMessage({ command: 'start', fps: 30 });
     });
 }
 
@@ -90,8 +98,7 @@ async function processFrame() {
             }
         }
     }
-
-    if (webcamRunning) window.requestAnimationFrame(processFrame);
+    // Frame looping is now driven purely by the background Web Worker tick to prevent browser throttling when the tab is hidden
 }
 
 /** 📊 THE ADVANCED FATIGUE MODEL **/
@@ -145,6 +152,7 @@ function updateNeuralMetrics(results) {
     else { label.innerText = "OPTIMAL"; label.style.color = "var(--success)"; }
 
     if (fatigueScore >= 75 && !isInterventionActive) {
+        triggerFatigueNotification();
         triggerIntervention();
     }
 }
@@ -319,6 +327,12 @@ function log(msg) {
     systemLogs.prepend(div);
 }
 
-document.getElementById("toggle-guardian").onclick = init;
-document.getElementById("debug-trigger").onclick = triggerIntervention;
+document.getElementById("toggle-guardian").onclick = () => {
+    initNotifications();
+    init();
+};
+document.getElementById("debug-trigger").onclick = () => {
+    triggerFatigueNotification();
+    triggerIntervention();
+};
 document.getElementById("reset-btn").onclick = () => location.reload();
