@@ -1,0 +1,181 @@
+:root {
+  --bg-dark: #0f1715; /* Deep matte forest/teal */
+  --bg-card: rgba(25, 35, 32, 0.7);
+  --teal-primary: #14b8a6;
+  --sage-accent: #86efac;
+  --matte-grey: #64748b;
+  --clinical-white: #f1f5f9;
+  --danger-soft: #ef4444;
+  --success-glow: rgba(34, 197, 94, 0.2);
+  --font-main: 'Outfit', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  color: var(--clinical-white);
+  font-family: var(--font-main);
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+}
+
+.clinical-glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Sidebar Dashboard */
+.sidebar {
+  width: 320px;
+  background: rgba(10, 15, 13, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.brand-section h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--sage-accent);
+  letter-spacing: -0.05em;
+}
+
+.brand-section p {
+  font-size: 0.8rem;
+  color: var(--matte-grey);
+}
+
+.status-indicator {
+  padding: 0.5rem 1rem;
+  border-radius: 100px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-active { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
+.status-loading { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+
+/* Main Therapy Area */
+.therapy-stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+}
+
+.video-sentinel {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  width: 240px;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.video-sentinel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  opacity: 0.5;
+}
+
+.video-sentinel canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+}
+
+/* Intervention UI */
+.overlay-warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(30px);
+}
+
+.warning-card {
+  text-align: center;
+  max-width: 500px;
+}
+
+.warning-card h2 {
+  font-size: 2.5rem;
+  color: var(--danger-soft);
+}
+
+.game-zone {
+  width: 100%;
+  height: 60vh;
+  position: relative;
+  margin: 2rem 0;
+}
+
+.timer-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid var(--teal-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono';
+  margin: 0 auto 2rem;
+}
+
+.instruction-text {
+  font-size: 1.2rem;
+  color: var(--clinical-white);
+  margin-top: 1rem;
+}
+
+.pause-subtext {
+  color: var(--danger-soft);
+  font-weight: 700;
+  margin-top: 1rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
