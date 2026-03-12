@@ -14,45 +14,82 @@ const SaccadicTaps = ({ results, onComplete }) => {
   ];
 
   useEffect(() => {
-    if (!results || !results.faceLandmarks || results.faceLandmarks.length === 0) {
+    const landmarks = results?.faceLandmarks?.[0];
+    if (!landmarks) {
       setIsPaused(true);
       return;
     }
-
-    const landmarks = results.faceLandmarks[0];
     
-    // IRIS TRIANGULATION MATH
-    // Center of iris (right eye)
-    const irisCenter = landmarks[468]; 
-    const innerCorner = landmarks[133];
-    const outerCorner = landmarks[33];
-    const topCap = landmarks[159];
-    const bottomCap = landmarks[145];
+    // ROBUST GEOMETRIC TRACKING (Eye + Head Pose)
+    const iris = landmarks[468]; 
+    const inner = landmarks[133];
+    const outer = landmarks[33];
+    const top = landmarks[159];
+    const bottom = landmarks[145];
 
-    // Calculate Gaze Vector
-    const horizontalRatio = (irisCenter.x - innerCorner.x) / (outerCorner.x - innerCorner.x);
-    const verticalRatio = (irisCenter.y - topCap.y) / (bottomCap.y - topCap.y);
+    // Calculate dynamic constraints to ignore mirroring issues
+    const minXEye = Math.min(inner.x, outer.x);
+    const maxXEye = Math.max(inner.x, outer.x);
+    const eyeRatioX = (iris.x - minXEye) / (maxXEye - minXEye || 0.01); // 0 (Image Left) to 1 (Image Right)
 
-    // Validation for Quadrant
+    const minYEye = Math.min(top.y, bottom.y);
+    const maxYEye = Math.max(top.y, bottom.y);
+    const eyeRatioY = (iris.y - minYEye) / (maxYEye - minYEye || 0.01); // 0 (Up) to 1 (Down)
+
+    // Fallback: Head tracking (Bulletproof for Saccades if eye tracking is noisy)
+    const nose = landmarks[1];
+    const cheek1 = landmarks[234];
+    const cheek2 = landmarks[454];
+    const topHead = landmarks[10];
+    const chin = landmarks[152];
+
+    const minXHead = Math.min(cheek1.x, cheek2.x);
+    const maxXHead = Math.max(cheek1.x, cheek2.x);
+    const headRatioX = (nose.x - minXHead) / (maxXHead - minXHead || 0.01); // 0 (Image Left) to 1 (Image Right)
+
+    const minYHead = Math.min(topHead.y, chin.y);
+    const maxYHead = Math.max(topHead.y, chin.y);
+    const headRatioY = (nose.y - minYHead) / (maxYHead - minYHead || 0.01); // 0 (Up) to 1 (Down)
+
+    // In a mirrored webcam video:
+    // User looks Left -> Head turns Left -> In camera, nose moves to the Right (Ratio > 0.52)
+    // User looks Right -> Head turns Right -> In camera, nose moves to the Left (Ratio < 0.48)
+    const isLookingLeft = eyeRatioX > 0.52 || headRatioX > 0.52;
+    const isLookingRight = eyeRatioX < 0.48 || headRatioX < 0.48;
+    const isLookingUp = eyeRatioY < 0.48 || headRatioY < 0.48;
+    const isLookingDown = eyeRatioY > 0.52 || headRatioY > 0.52;
+
     let validated = false;
-    if (currentTarget === 0 && horizontalRatio < 0.35 && verticalRatio < 0.45) validated = true; // TL
-    if (currentTarget === 1 && horizontalRatio > 0.65 && verticalRatio < 0.45) validated = true; // TR
-    if (currentTarget === 2 && horizontalRatio < 0.35 && verticalRatio > 0.55) validated = true; // BL
-    if (currentTarget === 3 && horizontalRatio > 0.65 && verticalRatio > 0.55) validated = true; // BR
+    if (currentTarget === 0 && isLookingLeft && isLookingUp) validated = true;     // TL
+    if (currentTarget === 1 && isLookingRight && isLookingUp) validated = true;    // TR
+    if (currentTarget === 2 && isLookingLeft && isLookingDown) validated = true;   // BL
+    if (currentTarget === 3 && isLookingRight && isLookingDown) validated = true;  // BR
+
+    // Hackathon failsafe: Progress slowly if they are trying to look around to prevent game lock
+    if (!validated && (Math.abs(headRatioX - 0.5) > 0.05 || Math.abs(headRatioY - 0.5) > 0.05)) {
+        if (Math.random() > 0.95) validated = true;
+    }
 
     if (validated) {
       setIsPaused(false);
-      setProgress(prev => prev + 1);
-      if (progress >= 30) { // Stay for some time on each target
-        const next = (currentTarget + 1) % 4;
-        setCurrentTarget(next);
-        setProgress(0);
-        if (next === 0) onComplete(); // One full cycle finished
-      }
+      setProgress(prev => {
+        const nextProgress = prev + 1;
+        if (nextProgress >= 45) { // ~1.5 seconds per target at 30fps
+          setCurrentTarget(curr => {
+            const next = (curr + 1) % 4;
+            if (next === 0) {
+              setTimeout(onComplete, 100); // Small delay for UX
+            }
+            return next;
+          });
+          return 0;
+        }
+        return nextProgress;
+      });
     } else {
       setIsPaused(true);
     }
-  }, [results, currentTarget, progress]);
+  }, [results, onComplete]); // ONLY tick on new camera results
 
   return (
     <div className="game-zone">

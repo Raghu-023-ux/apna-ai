@@ -40,11 +40,21 @@ export const useMediapipe = (videoRef) => {
   const detect = (callback) => {
     if (!landmarkerRef.current || !videoRef.current || !isLoaded) return;
 
+    // CRITICAL FIX: Ensure video has valid dimensions to avoid ROI width/height crash
+    if (videoRef.current.videoWidth === 0 || videoRef.current.videoHeight === 0) {
+      requestRef.current = requestAnimationFrame(() => detect(callback));
+      return;
+    }
+
     const startTimeMs = performance.now();
     if (videoRef.current.currentTime !== videoRef.current.lastTime) {
       videoRef.current.lastTime = videoRef.current.currentTime;
-      const results = landmarkerRef.current.detectForVideo(videoRef.current, startTimeMs);
-      callback(results);
+      try {
+        const results = landmarkerRef.current.detectForVideo(videoRef.current, startTimeMs);
+        callback(results);
+      } catch (err) {
+        console.error("MediaPipe detection failed:", err);
+      }
     }
 
     requestRef.current = requestAnimationFrame(() => detect(callback));

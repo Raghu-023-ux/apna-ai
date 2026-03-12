@@ -1,13 +1,16 @@
 :root {
-  --bg-dark: #0f1715; /* Deep matte forest/teal */
-  --bg-card: rgba(25, 35, 32, 0.7);
-  --teal-primary: #14b8a6;
-  --sage-accent: #86efac;
-  --matte-grey: #64748b;
-  --clinical-white: #f1f5f9;
-  --danger-soft: #ef4444;
-  --success-glow: rgba(34, 197, 94, 0.2);
-  --font-main: 'Outfit', sans-serif;
+  --bg-dark: #030305;
+  --bg-card: rgba(10, 10, 15, 0.8);
+  --teal-primary: #6366f1; /* Changed to accent color */
+  --sage-accent: #a855f7; /* Changed to accent-alt */
+  --matte-grey: #888899; /* Text dim */
+  --clinical-white: #ffffff;
+  --danger-soft: #ff4d4d;
+  --success-glow: rgba(0, 255, 136, 0.2);
+  --success: #00ff88;
+  --font-main: 'Outfit', 'JetBrains Mono', sans-serif;
+  --glass: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -27,7 +30,7 @@ body {
 .clinical-glass {
   background: var(--bg-card);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
   border-radius: 24px;
 }
 
@@ -39,40 +42,95 @@ body {
 
 /* Sidebar Dashboard */
 .sidebar {
-  width: 320px;
-  background: rgba(10, 15, 13, 0.8);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 2rem;
+  width: 360px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+  z-index: 10;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
 }
 
 .brand-section h1 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: var(--sage-accent);
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.brand-section h1 span { 
+    color: var(--teal-primary); 
+    opacity: 0.7; 
 }
 
 .brand-section p {
-  font-size: 0.8rem;
-  color: var(--matte-grey);
+  display: none; /* Removed for cyber theme */
 }
 
+/* Status Chip */
 .status-indicator {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 100px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  align-self: flex-start;
 }
 
-.status-active { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
-.status-loading { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+.status-active { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid var(--success); }
+.status-loading { background: rgba(255, 255, 255, 0.05); color: var(--matte-grey); }
+
+/* Metrics Panels */
+.metric-card {
+  padding: 1.5rem;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.metric-panel {
+  padding: 1rem;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.gauge-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 100px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.gauge-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal-primary), var(--sage-accent));
+    box-shadow: 0 0 15px var(--teal-primary);
+    transition: width 0.6s ease;
+}
+
+.flex-row { display: flex; justify-content: space-between; align-items: baseline; }
+.value { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 800; }
+.sub-label { font-size: 0.7rem; font-weight: 700; opacity: 0.5; }
 
 /* Main Therapy Area */
 .therapy-stage {
@@ -82,19 +140,34 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 3rem;
+  background: radial-gradient(circle at center, #0a0a15 0%, #030305 100%);
 }
+
+.welcome-gate {
+  text-align: center;
+  z-index: 10;
+}
+
+.welcome-gate h2 {
+    font-weight: 800;
+}
+
+.video-container {
+    flex: 1; position: relative; background: #000; overflow: hidden; width: 100%; height: 100%;
+}
+#webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); opacity: 0.2; }
+#output_canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; transform: scaleX(-1); }
 
 .video-sentinel {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 240px;
-  height: 180px;
-  border-radius: 20px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  border: none;
+  z-index: 0;
 }
 
 .video-sentinel video {
@@ -102,7 +175,7 @@ body {
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1);
-  opacity: 0.5;
+  opacity: 0.2;
 }
 
 .video-sentinel canvas {
@@ -112,11 +185,27 @@ body {
   width: 100%;
   height: 100%;
   transform: scaleX(-1);
+  z-index: 5;
+}
+
+.session-viewport {
+    position: relative;
+    z-index: 10;
+    width: 90%;
+    max-width: 1000px;
+    height: 450px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Intervention UI */
 .overlay-warning {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -127,7 +216,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(30px);
+  border-radius: 40px; /* match container */
 }
 
 .warning-card {
@@ -142,9 +231,12 @@ body {
 
 .game-zone {
   width: 100%;
-  height: 60vh;
+  height: 100%;
   position: relative;
-  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .timer-ring {
@@ -157,7 +249,7 @@ body {
   align-items: center;
   font-size: 2.5rem;
   font-weight: 800;
-  font-family: 'JetBrains Mono';
+  font-family: 'JetBrains Mono', monospace;
   margin: 0 auto 2rem;
 }
 
@@ -179,3 +271,9 @@ body {
   50% { opacity: 1; }
   100% { opacity: 0.5; }
 }
+
+.btn {
+    width: 100%; padding: 1rem; border-radius: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s;
+}
+.primary { background: var(--teal-primary); color: #fff; }
+.secondary { background: var(--glass); color: var(--matte-grey); border: 1px solid var(--border); }
